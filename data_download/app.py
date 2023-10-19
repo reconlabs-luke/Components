@@ -3,7 +3,7 @@ from torchvision import datasets, transforms
 
 
 def main(args):
-    if args.path == "MNIST":
+    if args.kind == "MNIST":
         datasets.MNIST(
             root=args.output_path,  # 다운로드 경로 지정
             train=True,  # False를 지정하면 테스트 데이터로 다운로드
@@ -23,6 +23,14 @@ if __name__ == "__main__":
         "-p",
         "--path",
         dest="path",
+        default="/path/to/data",
+        action="store",
+    )
+
+    parser.add_argument(
+        "-k",
+        "--kind",
+        dest="kind",
         default="MNIST",
         action="store",
     )
