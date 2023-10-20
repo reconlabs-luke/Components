@@ -1,9 +1,10 @@
-from model_train.model.model import ExampleModel
-from model_train.utils.train import train
-from model_train.utils.data_load import data_load
+from model.model import ExampleModel
+from utils.train import train
+from utils.data_load import data_load
 
 import torch
 import argparse
+import mlflow
 
 
 def main(args):
@@ -25,15 +26,23 @@ def main(args):
     metrics["valid_avg_cost"] = 0
     metrics["valid_avg_accuracy"] = 0
 
-    train(
-        epochs=args.epochs,
-        total_batch=total_batch,
-        metrics=metrics,
-        optimizer=optimizer,
-        criterion=criterion,
-        model=model,
-        device=args.device,
-    )
+    mlflow.set_tracking_uri("http://localhost:5000")
+    with mlflow.start_run():
+        mlflow.log_param("epochs", args.epochs)
+        mlflow.log_param("lr", args.learning_rate)
+        mlflow.log_param("batch_size", args.batch_size)
+
+        train(
+            epochs=args.epochs,
+            train_loader=train_loader,
+            total_batch=total_batch,
+            metrics=metrics,
+            optimizer=optimizer,
+            criterion=criterion,
+            model=model,
+            device=args.device,
+            input_example=None,
+        )
 
 
 if __name__ == "__main__":

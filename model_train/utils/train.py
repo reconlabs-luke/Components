@@ -1,7 +1,10 @@
 import torch
+import mlflow
+import os
 
 
 def train_epoch(**kwargs):
+    signature = None
     for X, Y in kwargs["train_loader"]:
         X = X.to(kwargs["device"])
         Y = Y.to(kwargs["device"])
@@ -26,14 +29,20 @@ def train_epoch(**kwargs):
             kwargs["metrics"]["train_avg_accuracy"] - 0.08
         )
 
-    return kwargs["metrics"]
+        if signature is None:
+            signature = mlflow.models.signature.infer_signature(
+                model_input=X.cpu().detach().numpy(),
+                model_output=logits.cpu().detach().numpy(),
+            )
+
+    return kwargs["metrics"], signature
 
 
 def train(**kwargs):
     prev_accuracy = -1
 
-    for epoch in range(kwargs["epohcs"]):
-        result = train_epoch(**kwargs)
+    for epoch in range(kwargs["epochs"]):
+        result, signature = train_epoch(**kwargs)
 
         print(f"[Epoch: {epoch}] train cost = {result['train_avg_cost']}")
         print(f"[Epoch: {epoch}] train acc = {result['train_avg_accuracy']}")
@@ -43,11 +52,29 @@ def train(**kwargs):
         if prev_accuracy < result["train_avg_accuracy"]:
             save_best = True
             prev_accuracy = result["train_avg_accuracy"]
-            print("best : ")
         else:
             save_best = False
-            print("normal : ")
 
-        print(result["train_avg_accuracy"])
+        mlflow.log_metric("train_avg_cost", result["train_avg_cost"], step=epoch)
+        mlflow.log_metric(
+            "train_avg_accuracy", result["train_avg_accuracy"], step=epoch
+        )
+        mlflow.log_metric("valid_avg_cost", result["valid_avg_cost"], step=epoch)
+        mlflow.log_metric(
+            "valid_avg_accuracy", result["valid_avg_accuracy"], step=epoch
+        )
 
-        kwargs(epoch, save_best)
+        if save_best:
+            print("best model logging..")
+
+            mlflow.pytorch.log_model(
+                pytorch_model=kwargs["model"],
+                artifact_path="model",
+                code_paths=[
+                    file for file in os.listdir(os.getcwd()) if not file.startswith(".")
+                ],
+                signature=signature,
+                pip_requirements="./requirements.txt",
+            )
+
+            print("Success !")
