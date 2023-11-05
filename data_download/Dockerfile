@@ -5,7 +5,7 @@ WORKDIR ${WORK_DIR}
 RUN apt-get update && apt-get install -y build-essential gcc pipenv
 
 COPY . ${WORK_DIR}
-RUN pipenv install --dev --system --deploy
+RUN pip install -r requirements.txt
 
 ENTRYPOINT [ "/bin/bash", "-c" ]
 CMD ["python", "app.py"]
