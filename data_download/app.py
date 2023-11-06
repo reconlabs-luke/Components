@@ -5,7 +5,7 @@ from torchvision import datasets, transforms
 def main(args):
     if args.kind == "MNIST":
         datasets.MNIST(
-            root=args.output_path,  # 다운로드 경로 지정
+            root=args.data_path,  # 다운로드 경로 지정
             train=True,  # False를 지정하면 테스트 데이터로 다운로드
             transform=transforms.Compose(
                 [
@@ -18,12 +18,14 @@ def main(args):
 
 
 if __name__ == "__main__":
+    print("data_download")
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-p",
-        "--path",
-        dest="path",
-        default="/path/to/data",
+        "--data-path",
+        dest="data_path",
+        help="/path/to/data",
+        default="/tmp",
         action="store",
     )
 
