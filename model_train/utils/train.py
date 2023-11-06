@@ -40,7 +40,6 @@ def train_epoch(**kwargs):
 
 def train(**kwargs):
     prev_accuracy = -1
-
     for epoch in range(kwargs["epochs"]):
         result, signature = train_epoch(**kwargs)
 
@@ -69,7 +68,7 @@ def train(**kwargs):
 
             mlflow.pytorch.log_model(
                 pytorch_model=kwargs["model"],
-                artifact_path="model",
+                artifact_path=kwargs.artifact_path,
                 code_paths=[
                     file for file in os.listdir(os.getcwd()) if not file.startswith(".")
                 ],

@@ -2,7 +2,7 @@ GIT_VERSION := $(shell git describe --tags --always --dirty)
 
 REPOSITORY ?= 129231402580.dkr.ecr.ap-northeast-1.amazonaws.com
 IMG ?= components
-COMPONENT_NAME ?= data-load
+COMPONENT_NAME ?= model-eval
 TAG ?= ${COMPONENT_NAME}-${GIT_VERSION}
 
 
