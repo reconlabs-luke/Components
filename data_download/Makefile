@@ -5,7 +5,6 @@ IMG ?= components
 COMPONENT_NAME ?= data-download
 TAG ?= ${COMPONENT_NAME}-${VERSION}
 
-
 docker-build:
 	aws ecr get-login-password --region ap-northeast-1 | docker login --username AWS --password-stdin ${REPOSITORY} && \
 	docker build -t ${IMG}:${TAG} .
